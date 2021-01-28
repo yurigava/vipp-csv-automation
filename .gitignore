@@ -1,1 +1,6 @@
+*.xlsx
+*.csv
 setupInfo.py
+__pycache__
+*.log
+.idea/
