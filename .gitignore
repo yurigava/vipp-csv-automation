@@ -1,3 +1,4 @@
+*.pickle
 *.xlsx
 *.csv
 setupInfo.py
