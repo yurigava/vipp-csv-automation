@@ -38,12 +38,22 @@ def getRowByShipping(rows, shippingType):
     return [row for row in rows if row[8].lower() == shippingType]
 
 
+def printError(nome):
+    print('ERRO!!!!!!!:')
+    print(f'Dimensões e pesos não encontrados para pedido de {nome}'
+        '\nOrdem => dimensões (menor para maior) e peso.')
+    input()
+    quit()
+
 with open('pedidos.csv', newline='', encoding='iso-8859-1') as csvfile:
     reader = csv.reader(csvfile, delimiter=';')
     for shipType in data:
+        print(shipType)
+        csvfile.seek(0)
         currentData = data[shipType]
         filteredLines = getRowByShipping(reader, shipType)
         for rowNum, row in enumerate(filteredLines):
+            print(row[27].upper())
             currentData['idPedido'].append(row[0])
             currentData['nome'].append(row[27].upper())
             currentData['endereco'].append(row[14])
@@ -54,16 +64,16 @@ with open('pedidos.csv', newline='', encoding='iso-8859-1') as csvfile:
             currentData['estado'].append(row[19])
             currentData['cep'].append(row[20])
             currentData['email'].append(row[22])
-            currentData['cpf'].append(row[23].split('"')[1])
+            currentData['cpf'].append(row[23].replace('"',''))
             try:
-                currentData['dimensoes'].append([row[28], row[29], row[30]])
-                currentData['peso'].append(row[31])
+                if all(row[col] != '' for col in [28, 29, 30, 31]):
+                    currentData['dimensoes'].append([row[28], row[29], row[30]])
+                    currentData['peso'].append(row[31])
+                else:
+                    printError(currentData["nome"][-1:])
             except IndexError:
-                print('ERRO!!!!!!!:')
-                print(f'Dimensões e pesos não encontrados para pedido de {currentData["nome"][-1:]}'
-                      '\nOrdem => dimensões (menor para maior) e peso.')
-                input()
-                quit()
+                printError(currentData["nome"][-1:])
+                
 
 with open('conteudo.csv', newline='', encoding='iso-8859-1') as csvfile:
     reader2 = csv.reader(csvfile, delimiter=';')
@@ -95,6 +105,9 @@ with open('conteudo.csv', newline='', encoding='iso-8859-1') as csvfile:
 
 with open('conteudo.pickle', 'wb') as conteudoDb:
     pickle.dump(data, conteudoDb)
+
+print('Pedidos Processados. Não esqueça de fazer o upload dos arquivos. Pressione Enter para sair.')
+input()
 
 #print(f'Nome: {nome[0]}')
 #print(f'CEP: {cep[0]}')

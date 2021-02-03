@@ -3,6 +3,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
+from unidecode import unidecode
 import setupInfo
 import pickle
 import time
@@ -31,6 +33,7 @@ pedidosInfo = {
     for key in dictKeys
 }
 
+pedidosInfo[nomeClientes] = [unidecode(nome) for nome in pedidosInfo[nomeClientes]]
 print(pedidosInfo[nomeClientes])
 
 
@@ -94,16 +97,25 @@ for index in range(len(pedidosInfo[idPedido])):
     waitTillPageLoads()
     waitTillTableLoads()
     waitBy(By.XPATH, "(//button[contains(@class,'btnedtobj')])[1]")
+    #select = Select(browser.find_element_by_xpath("//div[@id='DivTabelaCheckList']//span[@class='page-list']//button[contains(@class,'dropdown-toggle')]"))
+    #select.select_by_visible_text('50')
+    waitBy(By.XPATH, "(//button[contains(@class,'btnedtobj')])[1]")
     clickByXpath(f"(//button[contains(@class,'btnedtobj')])[{index+1}]")
 
     browser.switch_to.frame(browser.find_element_by_id('ifrEditarObjeto'))
     waitTillPageLoads()
 
     clienteNome = browser.find_element_by_id('txtNomeDestinatario').get_attribute("value")
-    clienteIndex = pedidosInfo[nomeClientes].index(clienteNome.upper())
+    clienteIndex = pedidosInfo[nomeClientes].index(unidecode(clienteNome).upper())
     print(clienteIndex)
     waitBy(By.ID, "btnDeclaracaoConteudo")
+    waitBy(By.ID, "btnDeclaracaoConteudo")
     clickById("btnDeclaracaoConteudo")
+    try:
+        waitBy(By.XPATH, "//iframe[@id='IFrmDecConteudo']")
+    except:
+        clickById("btnDeclaracaoConteudo")
+    waitBy(By.XPATH, "//iframe[@id='IFrmDecConteudo']")
     browser.switch_to.frame(browser.find_element_by_id('IFrmDecConteudo'))
 
     waitTillPageLoads()

@@ -5,3 +5,4 @@ setupInfo.py
 __pycache__
 *.log
 .idea/
+*.pdf
