@@ -97,6 +97,7 @@ totalPedidos = len(pedidosInfo[idPedido])
 for page in range(int(totalPedidos/10)):
     numElements = min(totalPedidos - (page * 10), 10)
     for index in range(numElements):
+        waitTillTableLoads()
         waitBy(By.XPATH, "(//button[contains(@class,'btnedtobj')])[1]")
         clickByXpath(f"(//button[contains(@class,'btnedtobj')])[{index + 1}]")
 
@@ -138,10 +139,11 @@ for page in range(int(totalPedidos/10)):
         clickByXpath("//div[contains(@class, 'form-group')]/button[contains(@class, 'cmdGravar')]")
         browser.switch_to.default_content()
 
-    clickByXpath("//div[@id='DivTabelaCheckList']//li[@class='page-next']/a")
-    waitTillPageLoads()
-    waitTillTableLoads()
-    waitBy(By.XPATH, "(//button[contains(@class,'btnedtobj')])[1]")
+        for nextPageClick in range(page):
+            clickByXpath("//div[@id='DivTabelaCheckList']//li[@class='page-next']/a")
+            waitTillPageLoads()
+            waitTillTableLoads()
+            waitBy(By.XPATH, "(//button[contains(@class,'btnedtobj')])[1]")
 
 browser.quit()
 
