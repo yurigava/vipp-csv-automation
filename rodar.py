@@ -93,49 +93,55 @@ clickByXpath("(//th/div[contains(@class,'th-inner') and text()='Nº ViPP'])[1]")
 waitTillTableLoads()
 waitBy(By.XPATH, "(//button[contains(@class,'btnedtobj')])[1]")
 
-for index in range(len(pedidosInfo[idPedido])):
+totalPedidos = len(pedidosInfo[idPedido])
+for page in range(int(totalPedidos/10)):
+    numElements = min(totalPedidos - (page * 10), 10)
+    for index in range(numElements):
+        waitBy(By.XPATH, "(//button[contains(@class,'btnedtobj')])[1]")
+        clickByXpath(f"(//button[contains(@class,'btnedtobj')])[{index + 1}]")
+
+        browser.switch_to.frame(browser.find_element_by_id('ifrEditarObjeto'))
+        waitTillPageLoads()
+
+        clienteNome = browser.find_element_by_id('txtNomeDestinatario').get_attribute("value")
+        clienteIndex = pedidosInfo[nomeClientes].index(unidecode(clienteNome).upper())
+        print(clienteIndex)
+        waitBy(By.ID, "btnDeclaracaoConteudo")
+        waitBy(By.ID, "btnDeclaracaoConteudo")
+        clickById("btnDeclaracaoConteudo")
+        try:
+            waitBy(By.XPATH, "//iframe[@id='IFrmDecConteudo']")
+        except:
+            clickById("btnDeclaracaoConteudo")
+        waitBy(By.XPATH, "//iframe[@id='IFrmDecConteudo']")
+        browser.switch_to.frame(browser.find_element_by_id('IFrmDecConteudo'))
+
+        waitTillPageLoads()
+        waitBy(By.XPATH,
+               "(//div[contains(@class,'ui-widget-content')]/div[contains(@class, 'CssPes')])[1]")
+        for produtoIndex in range(len(pedidosInfo[listaConteudos][clienteIndex])):
+            currentConteudos = pedidosInfo[listaConteudos][clienteIndex]
+            produtoDescXpath = f"(//div[contains(@class,'ui-widget-content')]/div[1])[{produtoIndex + 1}]"
+            produtoQtyXpath = f"(//div[contains(@class,'ui-widget-content')]/div[contains(@class, 'CssPes')])[{produtoIndex + 1}]"
+            produtoValorXpath = f"(//div[contains(@class,'ui-widget-content')]/div[contains(@class, 'CssVlr')])[{produtoIndex + 1}]"
+
+            fillInContentValue(produtoDescXpath,
+                               currentConteudos[produtoIndex][INDICE_DESC_PRODUTO])
+            fillInContentValue(produtoQtyXpath, currentConteudos[produtoIndex][INDICE_QTY_PRODUTO])
+            fillInContentValue(produtoValorXpath,
+                               currentConteudos[produtoIndex][INDICE_VALOR_PRODUTO])
+            browser.find_element_by_xpath(produtoValorXpath + "/input").send_keys(Keys.ENTER)
+
+        browser.switch_to.parent_frame()
+        clickById('BtnSalvarDeclaracao')
+        waitTillPageLoads()
+        clickByXpath("//div[contains(@class, 'form-group')]/button[contains(@class, 'cmdGravar')]")
+        browser.switch_to.default_content()
+
+    clickByXpath("//div[@id='DivTabelaCheckList']//li[@class='page-next']/a")
     waitTillPageLoads()
     waitTillTableLoads()
     waitBy(By.XPATH, "(//button[contains(@class,'btnedtobj')])[1]")
-    #select = Select(browser.find_element_by_xpath("//div[@id='DivTabelaCheckList']//span[@class='page-list']//button[contains(@class,'dropdown-toggle')]"))
-    #select.select_by_visible_text('50')
-    waitBy(By.XPATH, "(//button[contains(@class,'btnedtobj')])[1]")
-    clickByXpath(f"(//button[contains(@class,'btnedtobj')])[{index+1}]")
-
-    browser.switch_to.frame(browser.find_element_by_id('ifrEditarObjeto'))
-    waitTillPageLoads()
-
-    clienteNome = browser.find_element_by_id('txtNomeDestinatario').get_attribute("value")
-    clienteIndex = pedidosInfo[nomeClientes].index(unidecode(clienteNome).upper())
-    print(clienteIndex)
-    waitBy(By.ID, "btnDeclaracaoConteudo")
-    waitBy(By.ID, "btnDeclaracaoConteudo")
-    clickById("btnDeclaracaoConteudo")
-    try:
-        waitBy(By.XPATH, "//iframe[@id='IFrmDecConteudo']")
-    except:
-        clickById("btnDeclaracaoConteudo")
-    waitBy(By.XPATH, "//iframe[@id='IFrmDecConteudo']")
-    browser.switch_to.frame(browser.find_element_by_id('IFrmDecConteudo'))
-
-    waitTillPageLoads()
-    waitBy(By.XPATH, "(//div[contains(@class,'ui-widget-content')]/div[contains(@class, 'CssPes')])[1]")
-    for produtoIndex in range(len(pedidosInfo[listaConteudos][clienteIndex])):
-        currentConteudos = pedidosInfo[listaConteudos][clienteIndex]
-        produtoDescXpath = f"(//div[contains(@class,'ui-widget-content')]/div[1])[{produtoIndex+1}]"
-        produtoQtyXpath = f"(//div[contains(@class,'ui-widget-content')]/div[contains(@class, 'CssPes')])[{produtoIndex+1}]"
-        produtoValorXpath = f"(//div[contains(@class,'ui-widget-content')]/div[contains(@class, 'CssVlr')])[{produtoIndex+1}]"
-
-        fillInContentValue(produtoDescXpath, currentConteudos[produtoIndex][INDICE_DESC_PRODUTO])
-        fillInContentValue(produtoQtyXpath, currentConteudos[produtoIndex][INDICE_QTY_PRODUTO])
-        fillInContentValue(produtoValorXpath, currentConteudos[produtoIndex][INDICE_VALOR_PRODUTO])
-        browser.find_element_by_xpath(produtoValorXpath+"/input").send_keys(Keys.ENTER)
-
-    browser.switch_to.parent_frame()
-    clickById('BtnSalvarDeclaracao')
-    waitTillPageLoads()
-    clickByXpath("//div[contains(@class, 'form-group')]/button[contains(@class, 'cmdGravar')]")
-    browser.switch_to.default_content()
 
 browser.quit()
 
