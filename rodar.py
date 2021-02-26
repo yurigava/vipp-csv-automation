@@ -140,6 +140,8 @@ for page in range(int(totalPedidos/10)):
         browser.switch_to.default_content()
 
         for nextPageClick in range(page):
+            waitTillPageLoads()
+            waitTillTableLoads()
             clickByXpath("//div[@id='DivTabelaCheckList']//li[@class='page-next']/a")
             waitTillPageLoads()
             waitTillTableLoads()
